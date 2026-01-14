@@ -34,41 +34,15 @@ body, a, button { cursor: none !important; }
   --font-body: 'Archivo', sans-serif;
 }
 
-.slider-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  font-size: 30pt;
-  color: var(--extra-pink); /* Lub biały/czarny zależnie od preferencji */
-  cursor: pointer;
-  z-index: 10;
-  padding: 0 15px;
-  opacity: 0; /* Domyślnie ukryte */
-  transition: opacity 0.3s ease, transform 0.2s ease;
-  user-select: none;
-}
-
-/* Pokaż strzałki jak najedziesz na kafelek */
-.grid-item:hover .slider-arrow {
-  opacity: 1;
-}
-
-.slider-arrow.left { left: 0; }
-.slider-arrow.right { right: 0; }
-
-.slider-arrow:hover {
-  transform: translateY(-50%) scale(1.2); /* Lekkie powiększenie */
-  color: white; /* Zmiana koloru po najechaniu na samą strzałkę */
-}
-
-/* W dark mode strzałki bazowe mogą być białe */
-.dark-mode .slider-arrow {
-  color: white;
-}
-.dark-mode .slider-arrow:hover {
-  color: var(--extra-pink);
+.dark-mode {
+  --bg-color: #181818;
+  --text-main: #F0F0F0;
+  --header-bg: #181818;
+  --header-text: #F0F0F0;
+  --footer-bg: #181818; 
+  
+  --placeholder-bg: #252525;
+  --placeholder-text: #F0F0F0;
 }
 
 .app-container {
@@ -170,7 +144,7 @@ main {
   display: block;
 }
 .grid-item.adaptive-bg img { object-fit: contain; padding: 10%; }
-.grid-item:hover img { filter: grayscale(0%); transform: scale(1.03); }
+.grid-item:hover img { filter: grayscale(0%); transform: scale(1.1);}
 
 .grid-item.placeholder-item {
   background-color: var(--placeholder-bg); transition: background-color 0.3s ease;
