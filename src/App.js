@@ -1,11 +1,75 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 
+// --- TU JEST KLUCZOWY BRAKUJĄCY ELEMENT: KOMPONENT GRIDITEM ---
+const GridItem = ({ item }) => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Logika: bierzemy tablicę 'images', a jak jej nie ma, to robimy tablicę z pojedynczego 'img'
+  const images = item.images ? item.images : (item.img ? [item.img] : []);
+  const hasMultipleImages = images.length > 1;
+
+  // Funkcja: Następne zdjęcie
+  const nextImage = (e) => {
+    e.stopPropagation(); 
+    setCurrentImageIndex((prev) => (prev + 1) % images.length);
+  };
+
+  // Funkcja: Poprzednie zdjęcie
+  const prevImage = (e) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const currentSrc = images.length > 0 ? images[currentImageIndex] : null;
+
+  return (
+    <div 
+      className={`grid-item 
+        ${!currentSrc ? 'placeholder-item' : ''} 
+        ${item.isTransparent ? 'adaptive-bg' : ''}
+        ${item.isWide ? 'wide-item' : ''}
+        ${!item.isTransparent && currentSrc ? 'full-photo' : ''}
+      `}
+    >
+      {currentSrc ? (
+        <>
+          <img src={currentSrc} alt={item.title} />
+          
+          {/* Strzałki renderują się tylko gdy jest więcej zdjęć */}
+          {hasMultipleImages && (
+            <>
+              <button className="slider-arrow left" onClick={prevImage}>&lt;</button>
+              <button className="slider-arrow right" onClick={nextImage}>&gt;</button>
+            </>
+          )}
+
+          <div className="item-overlay">
+            <h3>{item.title}</h3>
+            <span className="item-category">{item.category}</span>
+            {hasMultipleImages && (
+              <span style={{fontSize: '10pt', display: 'block', marginTop: '5px', opacity: 0.7}}>
+                {currentImageIndex + 1} / {images.length}
+              </span>
+            )}
+          </div>
+        </>
+      ) : (
+        <div className="text-placeholder">
+          <h3>{item.title}</h3>
+          <span className="item-category">{item.category}</span>
+          <p style={{marginTop: '10px'}}>Content without image</p>
+        </div>
+      )}
+    </div>
+  );
+};
+// --- KONIEC KOMPONENTU GRIDITEM ---
+
+
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [filter, setFilter] = useState('all');
-  
-  // Stan do obracania logo
   const [scrollRotation, setScrollRotation] = useState(0);
 
   // --- LOGIKA KURSORA ---
@@ -39,14 +103,10 @@ function App() {
       }
       requestAnimationFrame(animateTrail);
     };
-
-    const handleScroll = () => {
-      setScrollRotation(window.scrollY / 5); 
-    };
+    const handleScroll = () => { setScrollRotation(window.scrollY / 5); };
 
     document.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('scroll', handleScroll);
-    
     const animationId = requestAnimationFrame(animateTrail);
 
     return () => {
@@ -56,9 +116,7 @@ function App() {
     };
   }, []);
 
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-  };
+  const toggleTheme = () => { setIsDarkMode(!isDarkMode); };
 
   // --- DANE ---
   const portfolioItems = [
@@ -104,6 +162,17 @@ function App() {
       category: 'video',
       img: 'img/sex_pistols.png',
       isTransparent: true
+    },
+    // --- KAFELEK Z GALERIĄ ---
+    {
+      id: 7,
+      title: 'Behind The Scenes', 
+      category: 'video',
+      images: [
+        'img/sex_pistols.png', 
+        'img/kith_graffiti.png' 
+      ],
+      isTransparent: true
     }
   ];
 
@@ -112,8 +181,6 @@ function App() {
     : portfolioItems.filter(item => item.category === filter);
 
   const filters = ['all', 'logo', 'video', 'calligraphy', 'editorial'];
-  
-  // Link do Google Forms
   const contactLink = "https://docs.google.com/forms/d/e/1FAIpQLSe3PFAr-GSdsjJQtr71f4Gi-vOkSmNVJq7wrHTVyAZCD9ra5g/viewform?usp=dialog";
 
   return (
@@ -139,7 +206,6 @@ function App() {
           <a href={contactLink} target="_blank" rel="noopener noreferrer" className="nav-link">
             Work With me!
           </a>
-          {/* Przycisk trybu: BOLD */}
           <button onClick={toggleTheme} className="theme-toggle">
             {isDarkMode ? 'Light mode' : 'Dark mode'}
           </button>
@@ -160,32 +226,9 @@ function App() {
         </div>
 
         <div className="portfolio-grid">
+          {/* UŻYCIE NOWEGO KOMPONENTU GRIDITEM */}
           {filteredItems.map((item) => (
-            <div 
-              key={item.id} 
-              className={`grid-item 
-                ${!item.img ? 'placeholder-item' : ''} 
-                ${item.isTransparent ? 'adaptive-bg' : ''}
-                ${item.isWide ? 'wide-item' : ''}
-                ${!item.isTransparent && item.img ? 'full-photo' : ''}
-              `}
-            >
-              {item.img ? (
-                <>
-                  <img src={item.img} alt={item.title} />
-                  <div className="item-overlay">
-                    <h3>{item.title}</h3>
-                    <span className="item-category">{item.category}</span>
-                  </div>
-                </>
-              ) : (
-                <div className="text-placeholder">
-                  <h3>{item.title}</h3>
-                  <span className="item-category">{item.category}</span>
-                  <p style={{marginTop: '10px'}}>Content without image</p>
-                </div>
-              )}
-            </div>
+            <GridItem key={item.id} item={item} />
           ))}
         </div>
       </main>
