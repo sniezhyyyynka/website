@@ -66,44 +66,44 @@ function App() {
       id: 1,
       title: '2D Vector Graffiti',
       category: 'calligraphy',
-      img: '/img/antszkol.png', 
+      img: 'img/antszkol.png', 
       isTransparent: true 
     },
     {
       id: 2,
       title: 'Fashion Campaign',
       category: 'video',
-      img: '/img/kith_graffiti.png',
+      img: 'img/kith_graffiti.png',
       isTransparent: true,
     },
     {
       id: 3,
       title: 'Modern Chair',
       category: 'logo',
-      img: '/img/KITH_graphic.png',
-      isTransparent: false, // Pełne zdjęcie
+      img: 'img/KITH_graphic.png',
+      isTransparent: false,
       isWide: true
     },
     {
       id: 4,
       title: 'Japanese Calligraphy',
       category: 'calligraphy',
-      img: '/img/mechatok_wax.png',
+      img: 'img/mechatok_wax.png',
       isTransparent: false 
     },
     {
       id: 5,
       title: 'Brand Identity',
       category: 'editorial',
-      img: '/img/kith_graffiti2.png',
+      img: 'img/kith_graffiti2.png',
       isTransparent: true
     },
     {
       id: 6,
       title: 'Music Video Teaser',
       category: 'video',
-      img: null,
-      isWide: true
+      img: 'img/sex_pistols.png',
+      isTransparent: true
     }
   ];
 
@@ -126,7 +126,7 @@ function App() {
       <header className="main-header">
         <div className="brand-container">
           <img 
-            src="/img/moje_logo.svg" 
+            src="img/moje_logo.svg" 
             alt="Logo" 
             className="brand-logo"
             style={{ transform: `rotate(${scrollRotation}deg)` }} 
