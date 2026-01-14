@@ -30,6 +30,9 @@ body, a, button { cursor: none !important; }
   --placeholder-bg: #181818; 
   --placeholder-text: #FFFFFF;
   
+  /* Nowa zmienna dla tła kafelka (żeby reagował na dark mode) */
+  --tile-bg: #f0f0f0;
+
   --font-headline: 'Inter', sans-serif;
   --font-body: 'Archivo', sans-serif;
 }
@@ -43,6 +46,9 @@ body, a, button { cursor: none !important; }
   
   --placeholder-bg: #252525;
   --placeholder-text: #F0F0F0;
+  
+  /* Ciemne tło kafelka w nocy */
+  --tile-bg: #252525; 
 }
 
 .app-container {
@@ -53,10 +59,61 @@ body, a, button { cursor: none !important; }
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-body { font-family: var(--font-body); font-weight: 300; font-size: 18pt; line-height: 1.5; }
+body { 
+  font-family: var(--font-body); 
+  font-weight: 300; 
+  font-size: 18pt; 
+  line-height: 1.5;
+  /* Dodano background-color do body, żeby nie było białych pasów przy scrollowaniu */
+  background-color: var(--bg-color);
+  transition: background-color 0.3s ease;
+}
 
 /* =========================================
-   3. NAGŁÓWEK (FIXED)
+   3. STRZAŁKI SLIDERA (DODANE)
+   ========================================= */
+.slider-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 30pt;
+  color: var(--extra-pink);
+  cursor: pointer;
+  z-index: 10;
+  padding: 0 15px;
+  
+  /* Ustawienie widoczności: 0.6 oznacza lekko przezroczyste, ale widoczne */
+  opacity: 0.6; 
+  transition: opacity 0.3s ease, transform 0.2s ease;
+  user-select: none;
+  text-shadow: 0 0 5px rgba(0,0,0,0.5); /* Cień, żeby było widać na każdym tle */
+}
+
+/* Po najechaniu (hover) pełna widoczność i powiększenie */
+.grid-item:hover .slider-arrow,
+.slider-arrow:hover {
+  opacity: 1;
+}
+
+.slider-arrow:hover {
+  transform: translateY(-50%) scale(1.2);
+  color: white; 
+}
+
+.slider-arrow.left { left: 0; }
+.slider-arrow.right { right: 0; }
+
+.dark-mode .slider-arrow {
+  color: white;
+}
+.dark-mode .slider-arrow:hover {
+  color: var(--extra-pink);
+}
+
+/* =========================================
+   4. NAGŁÓWEK (FIXED)
    ========================================= */
 .main-header {
   display: flex; justify-content: space-between; align-items: center;
@@ -101,18 +158,18 @@ body { font-family: var(--font-body); font-weight: 300; font-size: 18pt; line-he
 }
 .nav-link:hover { color: var(--extra-pink); font-style: normal; }
 
-/* PRZYCISK TRYBU - TERAZ BĘDZIE POGRUBIONY */
+/* PRZYCISK TRYBU */
 .theme-toggle {
   background: none; border: none; padding: 0; margin-left: 30px;
   font-family: var(--font-body); 
-  font-weight: 700; /* BOLD (wymaga importu wagi 700 na górze) */
+  font-weight: 700; /* BOLD */
   font-size: 18pt;
   color: var(--header-text); transition: color 0.3s ease; cursor: pointer;
 }
 .theme-toggle:hover { color: var(--extra-pink); font-style: normal; }
 
 /* =========================================
-   4. TREŚĆ
+   5. TREŚĆ
    ========================================= */
 main {
   width: 100vw; max-width: none; margin: 0; padding: 0; display: block;
@@ -132,9 +189,17 @@ main {
 .portfolio-grid { display: grid; grid-template-columns: 1fr 1fr; width: 100%; margin: 0; gap: 0; }
 
 /* =========================================
-   5. KAFELKI
+   6. KAFELKI
    ========================================= */
-.grid-item { width: 100%; aspect-ratio: 4 / 3; background-color: #f0f0f0; position: relative; overflow: hidden; display: block; }
+.grid-item { 
+  width: 100%; 
+  aspect-ratio: 4 / 3; 
+  /* Używamy zmiennej zamiast sztywnego koloru */
+  background-color: var(--tile-bg); 
+  position: relative; 
+  overflow: hidden; 
+  display: block; 
+}
 .grid-item.wide-item { grid-column: span 2; aspect-ratio: 16 / 9; }
 .grid-item.adaptive-bg { background-color: var(--bg-color); transition: background-color 0.3s ease; }
 
@@ -166,8 +231,6 @@ main {
   text-transform: uppercase; letter-spacing: 1px; display: block; margin-top: 5px; font-weight: 700;
   color: var(--extra-pink);
 }
-
-
 
 /* --- KOLORYSTYKA TEKSTÓW --- */
 .dark-mode .item-overlay h3, 
