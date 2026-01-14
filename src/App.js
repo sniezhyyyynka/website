@@ -170,7 +170,7 @@ function App() {
       category: 'video',
       images: [
         'img/sex_pistols.png', 
-        'img/kith_graffiti.png' 
+        'img/sex_pistols2.png' 
       ],
       isTransparent: true
     }
