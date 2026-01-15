@@ -1,29 +1,21 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import './App.css';
 
-// --- DANE (Przeniesione poza komponent, żeby było stabilnie) ---
-const portfolioItemsData = [
-  { id: 1, title: '2D Vector Graffiti', category: 'Calligraphy', img: 'img/antszkol.png', isTransparent: true },
-  { id: 2, title: '2D Logo', category: ['Branding', 'Logo'], img: 'img/kith_graffiti.png', isTransparent: true },
-  { id: 3, title: '3D logo render', category: ['Logo', '3D'], img: 'img/KITH_graphic.png', isTransparent: false, isWide: true },
-  { id: 4, title: '3D logo render', category: ['Calligraphy', '3D'], img: 'img/mechatok_wax.png', isTransparent: false },
-  { id: 5, title: '2D logo', category: 'Branding', img: 'img/kith_graffiti2.png', isTransparent: true },
-  { id: 6, title: 'Sex Pistols calligraphic logo', category: ['Calligraphy', 'Logo', 'Branding'], images: ['img/sex_pistols.png'], isTransparent: true },
-  { id: 7, title: 'BassVictim 2D logo', category: 'Calligraphy', images: ['img/bass1.png', 'img/bass3.png'], isTransparent: true }
-];
-
-// --- KOMPONENT GRIDITEM ---
+// --- KOMPONENT GRIDITEM (Pojedynczy kafelek) ---
 const GridItem = ({ item }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Standaryzacja źródła obrazów
+  // Upewniamy się, że zawsze mamy tablicę zdjęć
   const images = useMemo(() => {
-    if (item.images) return item.images;
-    if (item.img) return Array.isArray(item.img) ? item.img : [item.img];
+    if (item.images && item.images.length > 0) return item.images;
+    if (item.img) return [item.img];
     return [];
   }, [item.images, item.img]);
 
   const hasMultipleImages = images.length > 1;
+
+  // Sprawdzamy, czy mamy wyłączyć zoom (gdy jest szeroki I ma tło)
+  const disableZoom = item.isWide && !item.isTransparent;
 
   const nextImage = (e) => {
     e.stopPropagation();
@@ -35,6 +27,7 @@ const GridItem = ({ item }) => {
     setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
+  // Aktualnie wyświetlane zdjęcie
   const currentSrc = images.length > 0 ? images[currentImageIndex] : null;
 
   return (
@@ -44,22 +37,27 @@ const GridItem = ({ item }) => {
         ${item.isTransparent ? 'adaptive-bg' : ''}
         ${item.isWide ? 'wide-item' : ''}
         ${!item.isTransparent && currentSrc ? 'full-photo' : ''}
+        ${disableZoom ? 'no-zoom' : ''} 
       `}
     >
       {currentSrc ? (
         <>
           <img src={currentSrc} alt={item.title} />
+          
+          {/* Strzałki pokażą się TYLKO jeśli w danych są min. 2 zdjęcia */}
           {hasMultipleImages && (
             <>
               <button className="slider-arrow left" onClick={prevImage}>&lt;</button>
               <button className="slider-arrow right" onClick={nextImage}>&gt;</button>
             </>
           )}
+
           <div className="item-overlay">
             <h3>{item.title}</h3>
             <span className="item-category">
               {Array.isArray(item.category) ? item.category.join(', ') : item.category}
             </span>
+            {/* Licznik zdjęć (np. 1/2) */}
             {hasMultipleImages && (
               <span className="image-counter">
                 {currentImageIndex + 1} / {images.length}
@@ -82,6 +80,8 @@ function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [filter, setFilter] = useState('All');
   const [scrollRotation, setScrollRotation] = useState(0);
+  // Trzymamy potasowane elementy w stanie, żeby nie skakały
+  const [shuffledItems, setShuffledItems] = useState([]); 
 
   // Refs do kursora
   const mainCursor = useRef(null);
@@ -96,7 +96,24 @@ function App() {
 
   const contactLink = "https://docs.google.com/forms/d/e/1FAIpQLSe3PFAr-GSdsjJQtr71f4Gi-vOkSmNVJq7wrHTVyAZCD9ra5g/viewform?usp=dialog";
 
-  // --- EFEKT 1: LOGIKA KURSORA I SCROLLA ---
+  // --- EFEKT 1: INICJALIZACJA DANYCH (Shuffle raz na start) ---
+  useEffect(() => {
+    // TU SĄ TWOJE DANE. Jeśli nie chcesz strzałek, usuń drugie zdjęcia z tablic `images`.
+    const rawData = [
+        { id: 1, title: '2D Vector Graffiti', category: 'Calligraphy', img: 'img/antszkol.png', isTransparent: true },
+        { id: 2, title: '2D Logo', category: ['Branding', 'Logo'], img: 'img/kith_graffiti.png', isTransparent: true },
+        { id: 3, title: '3D logo render', category: ['Logo', '3D'], img: 'img/KITH_graphic.png', isTransparent: false, isWide: true },
+        { id: 4, title: '3D logo render', category: ['Calligraphy', '3D'], img: 'img/mechatok_wax.png', isTransparent: false },
+        { id: 5, title: '2D logo', category: 'Branding', img: 'img/kith_graffiti2.png', isTransparent: true },
+        // Te elementy mają po 2 zdjęcia, więc będą miały strzałki:
+        { id: 6, title: 'Sex Pistols calligraphic logo', category: ['Calligraphy', 'Logo', 'Branding'], images: ['img/sex_pistols.png', 'img/sex_pistols2.png'], isTransparent: true },
+        { id: 7, title: 'BassVictim 2D logo', category: 'Calligraphy', images: ['img/bass1.png', 'img/bass3.png'], isTransparent: true }
+    ];
+    // Tasujemy raz przy załadowaniu strony
+    setShuffledItems([...rawData].sort(() => Math.random() - 0.5));
+  }, []);
+
+  // --- EFEKT 2: LOGIKA KURSORA I SCROLLA ---
   useEffect(() => {
     const handleMouseMove = (e) => {
       mouseX.current = e.clientX;
@@ -135,18 +152,14 @@ function App() {
     };
   }, []);
 
-  // --- EFEKT 2: ZMIANA IKONY (FAVICON) NA LOGO SVG ---
+  // --- EFEKT 3: ZMIANA IKONY (FAVICON) NA BIAŁE LOGO ---
   useEffect(() => {
     const link = document.querySelector("link[rel~='icon']");
-    if (!link) {
-      const newLink = document.createElement('link');
-      newLink.rel = 'icon';
-      document.head.appendChild(newLink);
+    if (link) {
+      // Upewnij się, że plik 'moje_logo_white.svg' jest w folderze public/img!
+      link.href = "img/moje_logo_white.svg";
     }
-    // Ustawiamy ścieżkę do Twojego logo
-    document.querySelector("link[rel~='icon']").href = "img/moje_logo.svg";
   }, []);
-
 
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
@@ -154,26 +167,18 @@ function App() {
 
   const filters = ['All', 'Logo', 'Video', 'Calligraphy', 'Branding', '3D'];
 
-  // --- FILTROWANIE + LOSOWANIE (Shuffle) ---
+  // --- FILTROWANIE (na już potasowanej liście) ---
   const filteredItems = useMemo(() => {
-    // 1. Filtrujemy
-    let result = portfolioItemsData.filter(item => {
-      if (filter === 'All') return true;
+    if (filter === 'All') return shuffledItems;
+    return shuffledItems.filter(item => {
       const categories = Array.isArray(item.category) ? item.category : [item.category];
       return categories.some(cat => cat.toLowerCase() === filter.toLowerCase());
     });
-
-    // 2. Losujemy kolejność (Shuffle)
-    // Używamy prostego sortowania losowego. 
-    // To sprawi, że grid będzie inny za każdym odświeżeniem lub zmianą filtra.
-    return result.sort(() => Math.random() - 0.5);
-
-  }, [filter]); 
+  }, [filter, shuffledItems]);
 
 
   return (
     <div className={`app-container ${isDarkMode ? 'dark-mode' : ''}`}>
-      {/* Kursory */}
       <div className="custom-cursor main-cursor" ref={mainCursor}></div>
       <div className="custom-cursor trail-cursor trail-1" ref={trail1}></div>
       <div className="custom-cursor trail-cursor trail-2" ref={trail2}></div>
