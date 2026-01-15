@@ -95,7 +95,7 @@ function App() {
       { id: 3, title: '3D logo render', category: ['Logo', '3D'], img: 'img/KITH_graphic.png', isTransparent: false, isWide: true },
       { id: 4, title: '3D logo render', category: ['Calligraphy', '3D'], img: 'img/mechatok_wax.png', isTransparent: false },
       { id: 5, title: '2D logo', category: 'Branding', img: 'img/kith_graffiti2.png', isTransparent: true },
-      { id: 6, title: 'Sex Pistols Logo', category: ['Calligraphy', 'Logo'], img: 'img/sex_pistols.png', isTransparent: true },
+      { id: 6, title: 'Sex Pistols Logo', category: ['Calligraphy', 'Logo'], img: ['img/sex_pistols.png', 'img/sex_pistols2.png'], isTransparent: true },
       { id: 7, title: 'BassVictim 2D logo', category: 'Calligraphy', images: ['img/bass1.png', 'img/bass3.png'], isTransparent: true }
     ];
 
