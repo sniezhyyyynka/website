@@ -22,7 +22,7 @@ body, a, button { cursor: none !important; }
   --extra-pink: #FF005D;
   --placeholder-bg: #181818; 
   --placeholder-text: #FFFFFF;
-  --tile-bg: #f0f0f0; /* Tło kafelka */
+  --tile-bg: #f0f0f0; 
   --font-headline: 'Inter', sans-serif;
   --font-body: 'Archivo', sans-serif;
 }
@@ -118,16 +118,27 @@ main { width: 100vw; max-width: none; margin: 0; padding: 0; display: block; pad
 }
 .filter-btn:hover, .filter-btn.active { color: var(--extra-pink); font-weight: 400; }
 
-.portfolio-grid { display: grid; grid-template-columns: 1fr 1fr; width: 100%; margin: 0; gap: 0; }
+.portfolio-grid { 
+  display: grid; 
+  grid-template-columns: repeat(2, 1fr); 
+  gap: 0; 
+  padding: 0; 
+  width: 100%;
+  /* TO JEST KLUCZOWE: "dense" wypełnia dziury przed szerokimi kafelkami */
+  grid-auto-flow: dense; 
+}
 
-/* KAFELKI - TU BYŁ BŁĄD, TERAZ NAPRAWIONE */
+/* KAFELKI */
 .grid-item { 
   width: 100%; aspect-ratio: 4 / 3; 
   background-color: var(--tile-bg); 
-  position: relative; /* <--- TO NAPRAWIA NAKŁADANIE NAPISÓW */
-  overflow: hidden; display: block; 
+  position: relative;
+  overflow: hidden; /* To sprawia, że zoom nie wychodzi poza ramkę */
+  display: block; 
 }
+/* Wide item zajmuje 2 kolumny */
 .grid-item.wide-item { grid-column: span 2; aspect-ratio: 16 / 9; }
+
 .grid-item.adaptive-bg { background-color: var(--bg-color); transition: background-color 0.3s ease; }
 
 .grid-item img {
@@ -136,11 +147,12 @@ main { width: 100vw; max-width: none; margin: 0; padding: 0; display: block; pad
 }
 .grid-item.adaptive-bg img { object-fit: contain; padding: 10%; }
 
-/* ZOOM LOGIC */
-/* Domyślnie (zwykłe kafelki) -> ZOOM */
-.grid-item:not(.no-zoom):hover img { filter: grayscale(0%); transform: scale(1.1); }
-/* Kafelki zablokowane (.no-zoom - np. wide z tłem) -> BRAK ZOOM */
-.grid-item.no-zoom:hover img { filter: grayscale(0%); transform: scale(1); }
+/* ZOOM - TERAZ DZIAŁA DLA WSZYSTKICH (również wide i nietransparent) */
+/* Dzięki overflow: hidden w .grid-item, obrazek nie wyjdzie poza ramkę */
+.grid-item:hover img { 
+  filter: grayscale(0%); 
+  transform: scale(1.1); 
+}
 
 .grid-item.placeholder-item {
   background-color: var(--placeholder-bg); outline: 1px solid rgba(255,255,255,0.1);
@@ -158,9 +170,7 @@ main { width: 100vw; max-width: none; margin: 0; padding: 0; display: block; pad
   display: block; margin-top: 5px; font-weight: 700; color: var(--extra-pink);
 }
 
-/* TEKSTY W DARK MODE */
 .dark-mode .item-overlay h3, .dark-mode .text-placeholder h3, .dark-mode .item-category { color: #FFFFFF; }
-/* Wyjątek: pełne zdjęcia bez przezroczystości zawsze mają ciemny tekst (chyba że chcesz inaczej) */
 .full-photo .item-overlay h3, .full-photo .item-category { color: #181818 !important; }
 .dark-mode .full-photo .item-overlay h3, .dark-mode .full-photo .item-category { color: #181818 !important; }
 
@@ -177,6 +187,7 @@ footer {
 @media (max-width: 768px) {
     .main-header { flex-direction: column; padding: 20px 5%; gap: 20px; position: relative; }
     main { padding-top: 0; }
+    .wide-item {grid-column: span 1;} /* Na mobilce wide item jest normalny */
     .main-nav { justify-content: center; width: 100%; gap: 15px; }
     .portfolio-grid { grid-template-columns: 1fr; }
     .grid-item.wide-item { grid-column: span 1; aspect-ratio: 16 / 9; }

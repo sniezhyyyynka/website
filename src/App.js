@@ -5,7 +5,6 @@ import './App.css';
 const GridItem = ({ item }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Zabezpieczenie: tworzymy tablicę zdjęć zawsze
   const images = useMemo(() => {
     if (item.images && item.images.length > 0) return item.images;
     if (item.img) return [item.img];
@@ -13,10 +12,6 @@ const GridItem = ({ item }) => {
   }, [item.images, item.img]);
 
   const hasMultipleImages = images.length > 1;
-
-  // Logika blokowania zooma: 
-  // Jeśli jest szeroki (Wide) I NIE jest przezroczysty (ma tło) -> zablokuj zoom
-  const disableZoom = item.isWide && !item.isTransparent;
 
   const nextImage = (e) => {
     e.stopPropagation();
@@ -37,14 +32,12 @@ const GridItem = ({ item }) => {
         ${item.isTransparent ? 'adaptive-bg' : ''}
         ${item.isWide ? 'wide-item' : ''}
         ${!item.isTransparent && currentSrc ? 'full-photo' : ''}
-        ${disableZoom ? 'no-zoom' : ''}
       `}
     >
       {currentSrc ? (
         <>
           <img src={currentSrc} alt={item.title} />
           
-          {/* Strzałki tylko gdy >1 zdjęcie */}
           {hasMultipleImages && (
             <>
               <button className="slider-arrow left" onClick={prevImage}>&lt;</button>
@@ -96,21 +89,16 @@ function App() {
 
   // --- 1. DANE I LOSOWANIE (Shuffle) ---
   useEffect(() => {
-    // Tutaj poprawiłem dane - usunąłem nadmiarowe zdjęcia tam, gdzie ich nie chciałeś
     const rawData = [
       { id: 1, title: '2D Vector Graffiti', category: 'Calligraphy', img: 'img/antszkol.png', isTransparent: true },
       { id: 2, title: '2D Logo', category: ['Branding', 'Logo'], img: 'img/kith_graffiti.png', isTransparent: true },
-      // Ten jest Wide + False Transparent = BRAK ZOOMA (zgodnie z życzeniem)
       { id: 3, title: '3D logo render', category: ['Logo', '3D'], img: 'img/KITH_graphic.png', isTransparent: false, isWide: true },
       { id: 4, title: '3D logo render', category: ['Calligraphy', '3D'], img: 'img/mechatok_wax.png', isTransparent: false },
       { id: 5, title: '2D logo', category: 'Branding', img: 'img/kith_graffiti2.png', isTransparent: true },
-      // Tutaj zostawiłem tylko 1 zdjęcie, żeby nie było strzałek "niby 2 itemy"
       { id: 6, title: 'Sex Pistols Logo', category: ['Calligraphy', 'Logo'], img: 'img/sex_pistols.png', isTransparent: true },
-      // Tutaj zostawiłem 2, jeśli chcesz strzałki, zostaw tablicę images. Jak nie, zmień na img: '...'
       { id: 7, title: 'BassVictim 2D logo', category: 'Calligraphy', images: ['img/bass1.png', 'img/bass3.png'], isTransparent: true }
     ];
 
-    // Losujemy kolejność raz przy wejściu na stronę
     setShuffledItems([...rawData].sort(() => Math.random() - 0.5));
   }, []);
 
@@ -118,8 +106,7 @@ function App() {
   useEffect(() => {
     const link = document.querySelector("link[rel~='icon']");
     if (link) {
-      // WAŻNE: Musisz wgrać plik 'moje_logo_white.svg' do folderu public/img!
-      // Jeśli go nie masz, kod zadziała, ale ikona zniknie.
+      // Pamiętaj o wgraniu pliku moje_logo_white.svg do public/img !
       link.href = "img/moje_logo_white.svg";
     }
   }, []);
