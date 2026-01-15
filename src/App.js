@@ -105,10 +105,63 @@ function App() {
 
     window.addEventListener('mousemove', handleMouseMove);
     const animId = requestAnimationFrame(animateTrail);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      cancelAnimationFrame(animId);
-    };
+    return (
+    <div className={`app-container ${isDarkMode ? 'dark-mode' : ''}`}>
+      {/* Kursory */}
+      <div className="custom-cursor main-cursor" ref={mainCursor}></div>
+      <div className="custom-cursor trail-cursor trail-1" ref={trail1}></div>
+      <div className="custom-cursor trail-cursor trail-2" ref={trail2}></div>
+
+      <header className="main-header">
+        <div className="brand-container">
+          <img src="img/moje_logo.svg" alt="Logo" className="brand-logo" style={{ transform: `rotate(${scrollRotation}deg)` }} />
+          <div className="brand-name">ANTONI BISKUPSKI</div>
+        </div>
+
+        <nav className="main-nav">
+          {/* PRZYWRÓCONE LINKI */}
+          <a href="#services" className="nav-link">Services</a>
+          <a href={contactLink} target="_blank" rel="noopener noreferrer" className="nav-link">
+            Work With me!
+          </a>
+          <button onClick={toggleTheme} className="theme-toggle">
+            {isDarkMode ? 'Light mode' : 'Dark mode'}
+          </button>
+        </nav>
+      </header>
+
+      <main>
+        <div className="filter-bar">
+          {filters.map((cat) => (
+            <button
+              key={cat}
+              className={`filter-btn ${filter === cat ? 'active' : ''}`}
+              onClick={() => setFilter(cat)}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+
+        <div className="portfolio-grid">
+          {filteredItems.map((item) => (
+            <GridItem key={item.id} item={item} />
+          ))}
+        </div>
+      </main>
+
+      {/* Sekcja Services, której brakowało */}
+      <section id="services" style={{padding: '100px 5%'}}>
+         <h2>My Services</h2>
+         {/* Tutaj Twój content sekcji services */}
+      </section>
+
+      <footer>
+        <p>&copy; 2026 Antoni Biskupski</p>
+      </footer>
+    </div>
+  );
+
   }, []);
 
   const portfolioItems = [

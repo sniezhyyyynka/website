@@ -188,14 +188,15 @@ main {
 
 .portfolio-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* Grid dwukolumnowy */
-  gap: 20px;
-  padding: 20px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0; /* BYŁO 20px, TERAZ JEST ZERO */
+  padding: 0; /* BYŁO 20px, TERAZ JEST ZERO */
+  width: 100%;
 }
 
 .wide-item {
-  grid-column: span 2; /* Zajmuje dwie kolumny */
-  grid-column-start: 1;
+  grid-column: span 2;
+  grid-column-start: 1; /* Wymusza start od lewej, żeby nie było dziur przy styku 0px */
 }
 
 /* Zapobieganie dziurom w gridzie */
@@ -219,15 +220,15 @@ main {
 /* =========================================
    6. KAFELKI
    ========================================= */
-.grid-item { 
-  width: 100%; 
-  aspect-ratio: 4 / 3; 
-  /* Używamy zmiennej zamiast sztywnego koloru */
-  background-color: var(--tile-bg); 
-  position: relative; 
-  overflow: hidden; 
-  display: block; 
+.grid-item {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  /* Żeby nie było mikroskopijnych szpar między obrazkami */
+  outline: none; 
+  border: none;
 }
+
 .grid-item.wide-item { grid-column: span 2; aspect-ratio: 16 / 9; }
 .grid-item.adaptive-bg { background-color: var(--bg-color); transition: background-color 0.3s ease; }
 
