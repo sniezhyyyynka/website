@@ -1,6 +1,17 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import './App.css';
 
+// --- DANE (Przeniesione poza komponent, żeby było stabilnie) ---
+const portfolioItemsData = [
+  { id: 1, title: '2D Vector Graffiti', category: 'Calligraphy', img: 'img/antszkol.png', isTransparent: true },
+  { id: 2, title: '2D Logo', category: ['Branding', 'Logo'], img: 'img/kith_graffiti.png', isTransparent: true },
+  { id: 3, title: '3D logo render', category: ['Logo', '3D'], img: 'img/KITH_graphic.png', isTransparent: false, isWide: true },
+  { id: 4, title: '3D logo render', category: ['Calligraphy', '3D'], img: 'img/mechatok_wax.png', isTransparent: false },
+  { id: 5, title: '2D logo', category: 'Branding', img: 'img/kith_graffiti2.png', isTransparent: true },
+  { id: 6, title: 'Sex Pistols calligraphic logo', category: ['Calligraphy', 'Logo', 'Branding'], images: ['img/sex_pistols.png'], isTransparent: true },
+  { id: 7, title: 'BassVictim 2D logo', category: 'Calligraphy', images: ['img/bass1.png', 'img/bass3.png'], isTransparent: true }
+];
+
 // --- KOMPONENT GRIDITEM ---
 const GridItem = ({ item }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -78,15 +89,14 @@ function App() {
   const trail2 = useRef(null);
   const mouseX = useRef(0);
   const mouseY = useRef(0);
-  const trail1X = useRef(0); // Dodano brakujące refs do pozycji
+  const trail1X = useRef(0);
   const trail1Y = useRef(0);
   const trail2X = useRef(0);
   const trail2Y = useRef(0);
 
-  // Link kontaktowy
   const contactLink = "https://docs.google.com/forms/d/e/1FAIpQLSe3PFAr-GSdsjJQtr71f4Gi-vOkSmNVJq7wrHTVyAZCD9ra5g/viewform?usp=dialog";
 
-  // --- EFEKT: LOGIKA KURSORA I SCROLLA ---
+  // --- EFEKT 1: LOGIKA KURSORA I SCROLLA ---
   useEffect(() => {
     const handleMouseMove = (e) => {
       mouseX.current = e.clientX;
@@ -100,13 +110,10 @@ function App() {
       setScrollRotation(window.scrollY / 5);
     };
 
-    // Logika animacji ogona kursora
     const animateTrail = () => {
       const speed = 0.15;
-      
       trail1X.current += (mouseX.current - trail1X.current) * speed;
       trail1Y.current += (mouseY.current - trail1Y.current) * speed;
-      
       trail2X.current += (trail1X.current - trail2X.current) * speed;
       trail2Y.current += (trail1Y.current - trail2Y.current) * speed;
 
@@ -114,7 +121,6 @@ function App() {
         trail1.current.style.transform = `translate3d(${trail1X.current}px, ${trail1Y.current}px, 0) translate(-50%, -50%)`;
         trail2.current.style.transform = `translate3d(${trail2X.current}px, ${trail2Y.current}px, 0) translate(-50%, -50%)`;
       }
-      
       requestAnimationFrame(animateTrail);
     };
 
@@ -122,7 +128,6 @@ function App() {
     window.addEventListener('scroll', handleScroll);
     const animId = requestAnimationFrame(animateTrail);
 
-    // Cleanup function
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('scroll', handleScroll);
@@ -130,34 +135,42 @@ function App() {
     };
   }, []);
 
+  // --- EFEKT 2: ZMIANA IKONY (FAVICON) NA LOGO SVG ---
+  useEffect(() => {
+    const link = document.querySelector("link[rel~='icon']");
+    if (!link) {
+      const newLink = document.createElement('link');
+      newLink.rel = 'icon';
+      document.head.appendChild(newLink);
+    }
+    // Ustawiamy ścieżkę do Twojego logo
+    document.querySelector("link[rel~='icon']").href = "img/moje_logo.svg";
+  }, []);
+
+
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
   };
 
-  // --- DANE ---
-  const portfolioItems = [
-    { id: 1, title: '2D Vector Graffiti', category: 'Calligraphy', img: 'img/antszkol.png', isTransparent: true },
-    { id: 2, title: '2D Logo', category: ['Branding', 'Logo'], img: 'img/kith_graffiti.png', isTransparent: true },
-    { id: 3, title: '3D logo render', category: ['Logo', '3D'], img: 'img/KITH_graphic.png', isTransparent: false, isWide: true },
-    { id: 4, title: '3D logo render', category: ['Calligraphy', '3D'], img: 'img/mechatok_wax.png', isTransparent: false },
-    { id: 5, title: '2D logo', category: 'Branding', img: 'img/kith_graffiti2.png', isTransparent: true },
-    { id: 6, title: 'Sex Pistols calligraphic logo', category: ['Calligraphy', 'Logo', 'Branding'], images: ['img/sex_pistols.png'], isTransparent: true },
-    { id: 7, title: 'BassVictim 2D logo', category: 'Calligraphy', images: ['img/bass1.png', 'img/bass3.png'], isTransparent: true }
-  ];
-
   const filters = ['All', 'Logo', 'Video', 'Calligraphy', 'Branding', '3D'];
 
-  // --- FILTROWANIE ---
+  // --- FILTROWANIE + LOSOWANIE (Shuffle) ---
   const filteredItems = useMemo(() => {
-    const baseFiltered = portfolioItems.filter(item => {
+    // 1. Filtrujemy
+    let result = portfolioItemsData.filter(item => {
       if (filter === 'All') return true;
       const categories = Array.isArray(item.category) ? item.category : [item.category];
       return categories.some(cat => cat.toLowerCase() === filter.toLowerCase());
     });
-    return baseFiltered;
-  }, [filter, portfolioItems]); // Dodano dependency portfolioItems
 
-  // --- RENDEROWANIE STRONY (To musi być na końcu funkcji App) ---
+    // 2. Losujemy kolejność (Shuffle)
+    // Używamy prostego sortowania losowego. 
+    // To sprawi, że grid będzie inny za każdym odświeżeniem lub zmianą filtra.
+    return result.sort(() => Math.random() - 0.5);
+
+  }, [filter]); 
+
+
   return (
     <div className={`app-container ${isDarkMode ? 'dark-mode' : ''}`}>
       {/* Kursory */}
@@ -177,7 +190,6 @@ function App() {
         </div>
 
         <nav className="main-nav">
-          <a href="#services" className="nav-link">Services</a>
           <a href={contactLink} target="_blank" rel="noopener noreferrer" className="nav-link">
             Work With me!
           </a>
@@ -206,12 +218,6 @@ function App() {
           ))}
         </div>
       </main>
-
-      {/* Sekcja Services */}
-      <section id="services" style={{padding: '100px 5%', textAlign: 'center'}}>
-         <h2 style={{fontFamily: 'var(--font-headline)', marginBottom: '40px'}}>My Services</h2>
-         <p>Graphic Design • Branding • 3D Rendering • Video Editing</p>
-      </section>
 
       <footer>
         <p>&copy; 2026 Antoni Biskupski</p>
