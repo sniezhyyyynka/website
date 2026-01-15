@@ -137,12 +137,12 @@ function App() {
   // --- DANE ---
   const portfolioItems = [
     { id: 1, title: '2D Vector Graffiti', category: 'Calligraphy', img: 'img/antszkol.png', isTransparent: true },
-    { id: 2, title: 'Fashion Campaign', category: ['Branding', 'Logo'], img: 'img/kith_graffiti.png', isTransparent: true },
+    { id: 2, title: '2D Logo', category: ['Branding', 'Logo'], img: 'img/kith_graffiti.png', isTransparent: true },
     { id: 3, title: '3D logo render', category: ['Logo', '3D'], img: 'img/KITH_graphic.png', isTransparent: false, isWide: true },
-    { id: 4, title: 'Japanese Calligraphy', category: ['Calligraphy', '3D'], img: 'img/mechatok_wax.png', isTransparent: false },
-    { id: 5, title: 'Kith brand identity', category: 'Branding', img: 'img/kith_graffiti2.png', isTransparent: true },
-    { id: 6, title: 'Music Video Teaser', category: ['Calligraphy', 'Logo', 'Branding'], images: ['img/sex_pistols.png'], isTransparent: true },
-    { id: 7, title: 'Behind The Scenes', category: 'Calligraphy', images: ['img/sex_pistols.png', 'img/sex_pistols2.png'], isTransparent: true }
+    { id: 4, title: '3D logo render', category: ['Calligraphy', '3D'], img: 'img/mechatok_wax.png', isTransparent: false },
+    { id: 5, title: '2D logo', category: 'Branding', img: 'img/kith_graffiti2.png', isTransparent: true },
+    { id: 6, title: 'Sex Pistols calligraphic logo', category: ['Calligraphy', 'Logo', 'Branding'], images: ['img/sex_pistols.png'], isTransparent: true },
+    { id: 7, title: 'BassVictim 2D logo', category: 'Calligraphy', images: ['img/bass1.png', 'img/bass3.png'], isTransparent: true }
   ];
 
   const filters = ['All', 'Logo', 'Video', 'Calligraphy', 'Branding', '3D'];
