@@ -186,7 +186,35 @@ main {
 .filter-btn:hover, .filter-btn.active { color: var(--extra-pink); font-style: normal; }
 .filter-btn.active { font-weight: 400; }
 
-.portfolio-grid { display: grid; grid-template-columns: 1fr 1fr; width: 100%; margin: 0; gap: 0; }
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Grid dwukolumnowy */
+  gap: 20px;
+  padding: 20px;
+}
+
+.wide-item {
+  grid-column: span 2; /* Zajmuje dwie kolumny */
+  grid-column-start: 1;
+}
+
+/* Zapobieganie dziurom w gridzie */
+@media (min-width: 1024px) {
+  .portfolio-grid {
+    grid-auto-flow: dense; /* Magiczna właściwość, która upycha małe elementy w dziury */
+  }
+}
+
+.custom-cursor {
+  position: fixed;
+  pointer-events: none; /* KLUCZOWE: kursor nie blokuje kliknięć w przyciski! */
+  z-index: 9999;
+}
+
+.slider-arrow {
+  cursor: pointer;
+  pointer-events: auto; /* Strzałki muszą reagować na myszkę */
+}
 
 /* =========================================
    6. KAFELKI
@@ -256,6 +284,7 @@ footer {
 @media (max-width: 768px) {
     .main-header { flex-direction: column; padding: 20px 5%; gap: 20px; position: relative; }
     main { padding-top: 0; }
+    .wide-item {grid-column: span 1; grid-column-start: auto;}
     .main-nav { justify-content: center; width: 100%; gap: 15px; }
     .portfolio-grid { grid-template-columns: 1fr; }
     .grid-item.wide-item { grid-column: span 1; aspect-ratio: 16 / 9; }

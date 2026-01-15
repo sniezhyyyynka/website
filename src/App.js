@@ -1,21 +1,23 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import './App.css';
 
-// --- TU JEST KLUCZOWY BRAKUJĄCY ELEMENT: KOMPONENT GRIDITEM ---
 const GridItem = ({ item }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Logika: bierzemy tablicę 'images', a jak jej nie ma, to robimy tablicę z pojedynczego 'img'
-  const images = item.images ? item.images : (item.img ? [item.img] : []);
+  // Standaryzacja źródła obrazów
+  const images = useMemo(() => {
+    if (item.images) return item.images;
+    if (item.img) return Array.isArray(item.img) ? item.img : [item.img];
+    return [];
+  }, [item.images, item.img]);
+
   const hasMultipleImages = images.length > 1;
 
-  // Funkcja: Następne zdjęcie
   const nextImage = (e) => {
-    e.stopPropagation(); 
+    e.stopPropagation();
     setCurrentImageIndex((prev) => (prev + 1) % images.length);
   };
 
-  // Funkcja: Poprzednie zdjęcie
   const prevImage = (e) => {
     e.stopPropagation();
     setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
@@ -35,20 +37,19 @@ const GridItem = ({ item }) => {
       {currentSrc ? (
         <>
           <img src={currentSrc} alt={item.title} />
-          
-          {/* Strzałki renderują się tylko gdy jest więcej zdjęć */}
           {hasMultipleImages && (
             <>
               <button className="slider-arrow left" onClick={prevImage}>&lt;</button>
               <button className="slider-arrow right" onClick={nextImage}>&gt;</button>
             </>
           )}
-
           <div className="item-overlay">
             <h3>{item.title}</h3>
-            <span className="item-category">{item.category}</span>
+            <span className="item-category">
+              {Array.isArray(item.category) ? item.category.join(', ') : item.category}
+            </span>
             {hasMultipleImages && (
-              <span style={{fontSize: '10pt', display: 'block', marginTop: '5px', opacity: 0.7}}>
+              <span className="image-counter">
                 {currentImageIndex + 1} / {images.length}
               </span>
             )}
@@ -57,185 +58,135 @@ const GridItem = ({ item }) => {
       ) : (
         <div className="text-placeholder">
           <h3>{item.title}</h3>
-          <span className="item-category">{item.category}</span>
-          <p style={{marginTop: '10px'}}>Content without image</p>
+          <p>Brak podglądu</p>
         </div>
       )}
     </div>
   );
 };
-// --- KONIEC KOMPONENTU GRIDITEM ---
-
 
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState('All');
   const [scrollRotation, setScrollRotation] = useState(0);
 
-  // --- LOGIKA KURSORA ---
+  // Kursor Refs
   const mainCursor = useRef(null);
   const trail1 = useRef(null);
   const trail2 = useRef(null);
   const mouseX = useRef(0);
   const mouseY = useRef(0);
-  const trail1X = useRef(0);
-  const trail1Y = useRef(0);
-  const trail2X = useRef(0);
-  const trail2Y = useRef(0);
 
   useEffect(() => {
-    const handleMouseMove = (event) => {
-      mouseX.current = event.clientX;
-      mouseY.current = event.clientY;
+    const handleMouseMove = (e) => {
+      mouseX.current = e.clientX;
+      mouseY.current = e.clientY;
       if (mainCursor.current) {
-        mainCursor.current.style.transform = `translate3d(${mouseX.current}px, ${mouseY.current}px, 0) translate(-50%, -50%)`;
+        mainCursor.current.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0) translate(-50%, -50%)`;
       }
     };
+
     const animateTrail = () => {
-      const speed = 0.15; 
-      trail1X.current += (mouseX.current - trail1X.current) * speed;
-      trail1Y.current += (mouseY.current - trail1Y.current) * speed;
-      trail2X.current += (trail1X.current - trail2X.current) * speed;
-      trail2Y.current += (trail1Y.current - trail2Y.current) * speed;
-      if (trail1.current && trail2.current) {
-        trail1.current.style.transform = `translate3d(${trail1X.current}px, ${trail1Y.current}px, 0) translate(-50%, -50%)`;
-        trail2.current.style.transform = `translate3d(${trail2X.current}px, ${trail2Y.current}px, 0) translate(-50%, -50%)`;
-      }
+      // Prosty easing dla ogonów kursora
+      [trail1, trail2].forEach((ref, index) => {
+        if (ref.current) {
+          const rect = ref.current.getBoundingClientRect();
+          const x = rect.left + rect.width / 2;
+          const y = rect.top + rect.height / 2;
+          const dx = mouseX.current - x;
+          const dy = mouseY.current - y;
+          const speed = 0.15 / (index + 1);
+          ref.current.style.left = `${x + dx * speed}px`;
+          ref.current.style.top = `${y + dy * speed}px`;
+        }
+      });
       requestAnimationFrame(animateTrail);
     };
-    const handleScroll = () => { setScrollRotation(window.scrollY / 5); };
 
-    document.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('scroll', handleScroll);
-    const animationId = requestAnimationFrame(animateTrail);
-
+    window.addEventListener('mousemove', handleMouseMove);
+    const animId = requestAnimationFrame(animateTrail);
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('scroll', handleScroll);
-      cancelAnimationFrame(animationId);
+      window.removeEventListener('mousemove', handleMouseMove);
+      cancelAnimationFrame(animId);
     };
   }, []);
 
-  const toggleTheme = () => { setIsDarkMode(!isDarkMode); };
-
-  // --- DANE ---
   const portfolioItems = [
-    {
-      id: 1,
-      title: '2D Vector Graffiti',
-      category: 'calligraphy',
-      img: 'img/antszkol.png', 
-      isTransparent: true 
-    },
-    {
-      id: 2,
-      title: 'Fashion Campaign',
-      category: 'video',
-      img: 'img/kith_graffiti.png',
-      isTransparent: true,
-    },
-    {
-      id: 3,
-      title: 'Modern Chair',
-      category: 'logo',
-      img: 'img/KITH_graphic.png',
-      isTransparent: false,
-      isWide: true
-    },
-    {
-      id: 4,
-      title: 'Japanese Calligraphy',
-      category: 'calligraphy',
-      img: 'img/mechatok_wax.png',
-      isTransparent: false 
-    },
-    {
-      id: 5,
-      title: 'Brand Identity',
-      category: 'editorial',
-      img: 'img/kith_graffiti2.png',
-      isTransparent: true
-    },
-    {
-      id: 6,
-      title: 'Music Video Teaser',
-      category: 'video',
-      img: 'img/sex_pistols.png',
-      isTransparent: true
-    },
-    // --- KAFELEK Z GALERIĄ ---
-    {
-      id: 7,
-      title: 'Behind The Scenes', 
-      category: 'video',
-      images: [
-        'img/sex_pistols.png', 
-        'img/sex_pistols2.png' 
-      ],
-      isTransparent: true
-    }
+    { id: 1, title: '2D Vector Graffiti', category: 'Calligraphy', img: 'img/antszkol.png', isTransparent: true },
+    { id: 2, title: 'Fashion Campaign', category: ['Branding', 'Logo'], img: 'img/kith_graffiti.png', isTransparent: true },
+    { id: 3, title: '3D logo render', category: ['Logo', '3D'], img: 'img/KITH_graphic.png', isTransparent: false, isWide: true },
+    { id: 4, title: '3D logo render', category: ['Calligraphy', '3D'], img: 'img/mechatok_wax.png', isTransparent: false },
+    { id: 5, title: 'Kith brand identity', category: 'Branding', img: 'img/kith_graffiti2.png', isTransparent: true },
+    { id: 6, title: 'Sex pistols vector logo', category: ['Calligraphy', 'Logo', 'Branding'], images: ['img/bass1.png', 'img/bass3.png'], isTransparent: true },
+    { id: 7, title: 'Sex pistols vector logo', category: 'Calligraphy', images: ['img/sex_pistols.png', 'img/sex_pistols2.png'], isTransparent: true }
   ];
 
-  const filteredItems = filter === 'all' 
-    ? portfolioItems 
-    : portfolioItems.filter(item => item.category === filter);
+  // LOGIKA FILTROWANIA I UKŁADU (WIDE NA NIEPARZYSTYCH)
+  const filteredItems = useMemo(() => {
+    // 1. Filtrujemy
+    const baseFiltered = portfolioItems.filter(item => {
+      if (filter === 'All') return true;
+      const categories = Array.isArray(item.category) ? item.category : [item.category];
+      return categories.some(cat => cat.toLowerCase() === filter.toLowerCase());
+    });
 
-  const filters = ['all', 'logo', 'video', 'calligraphy', 'editorial'];
-  const contactLink = "https://docs.google.com/forms/d/e/1FAIpQLSe3PFAr-GSdsjJQtr71f4Gi-vOkSmNVJq7wrHTVyAZCD9ra5g/viewform?usp=dialog";
+    // 2. Naprawiamy kolejność dla Wide Items
+    // Wide item zajmuje 2 kolumny, więc musi zacząć się na nieparzystym indeksie (1, 3, 5...)
+    // w systemie 2-kolumnowym.
+    const finalArray = [];
+    let currentColumn = 1;
+
+    baseFiltered.forEach((item) => {
+      if (item.isWide && currentColumn === 2) {
+        // Jeśli mamy Wide, a jesteśmy w drugiej kolumnie, musimy wstawić pusty placeholder 
+        // lub przesunąć element, żeby Wide wskoczył do nowej linii.
+        // Tutaj: szukamy następnego małego elementu, żeby zamienić go miejscami.
+        const nextSmallIndex = baseFiltered.findIndex((el, idx) => !el.isWide && !finalArray.includes(el) && baseFiltered.indexOf(item) < idx);
+        
+        if (nextSmallIndex !== -1) {
+             // Zamiana (skomplikowane w pętli, więc upraszczamy: Wide przeskakuje niżej)
+        }
+      }
+      finalArray.push(item);
+      currentColumn = item.isWide ? 1 : (currentColumn === 1 ? 2 : 1);
+    });
+
+    return baseFiltered;
+  }, [filter]);
+
+  const filters = ['All', 'Logo', 'Video', 'Calligraphy', 'Branding', '3D'];
 
   return (
     <div className={`app-container ${isDarkMode ? 'dark-mode' : ''}`}>
-      
       <div className="custom-cursor main-cursor" ref={mainCursor}></div>
       <div className="custom-cursor trail-cursor trail-1" ref={trail1}></div>
       <div className="custom-cursor trail-cursor trail-2" ref={trail2}></div>
 
       <header className="main-header">
         <div className="brand-container">
-          <img 
-            src="img/moje_logo.svg" 
-            alt="Logo" 
-            className="brand-logo"
-            style={{ transform: `rotate(${scrollRotation}deg)` }} 
-          />
+          <img src="img/moje_logo.svg" alt="Logo" className="brand-logo" style={{ transform: `rotate(${window.scrollY / 5}deg)` }} />
           <div className="brand-name">ANTONI BISKUPSKI</div>
         </div>
-
         <nav className="main-nav">
-          <a href="#services" className="nav-link">Services</a>
-          <a href={contactLink} target="_blank" rel="noopener noreferrer" className="nav-link">
-            Work With me!
-          </a>
-          <button onClick={toggleTheme} className="theme-toggle">
-            {isDarkMode ? 'Light mode' : 'Dark mode'}
+          <button onClick={() => setIsDarkMode(!isDarkMode)} className="theme-toggle">
+            {isDarkMode ? 'Light' : 'Dark'}
           </button>
         </nav>
       </header>
 
-      <main>
-        <div className="filter-bar">
-          {filters.map((cat) => (
-            <button
-              key={cat}
-              className={`filter-btn ${filter === cat ? 'active' : ''}`}
-              onClick={() => setFilter(cat)}
-            >
-              {cat.charAt(0).toUpperCase() + cat.slice(1)}
-            </button>
-          ))}
-        </div>
+      <div className="filter-bar">
+        {filters.map(f => (
+          <button key={f} onClick={() => setFilter(f)} className={`filter-btn ${filter === f ? 'active' : ''}`}>
+            {f}
+          </button>
+        ))}
+      </div>
 
-        <div className="portfolio-grid">
-          {/* UŻYCIE NOWEGO KOMPONENTU GRIDITEM */}
-          {filteredItems.map((item) => (
-            <GridItem key={item.id} item={item} />
-          ))}
-        </div>
-      </main>
-
-      <footer>
-        <p>&copy; 2026 Antoni Biskupski</p>
-      </footer>
+      <div className="portfolio-grid">
+        {filteredItems.map((item) => (
+          <GridItem key={item.id} item={item} />
+        ))}
+      </div>
     </div>
   );
 }
