@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import './App.css';
 
-// --- KOMPONENT GRIDITEM (Pojedynczy kafelek) ---
+// --- KOMPONENT GRIDITEM (KAFELEK) ---
 const GridItem = ({ item }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Upewniamy się, że zawsze mamy tablicę zdjęć
+  // Zabezpieczenie: tworzymy tablicę zdjęć zawsze
   const images = useMemo(() => {
     if (item.images && item.images.length > 0) return item.images;
     if (item.img) return [item.img];
@@ -14,7 +14,8 @@ const GridItem = ({ item }) => {
 
   const hasMultipleImages = images.length > 1;
 
-  // Sprawdzamy, czy mamy wyłączyć zoom (gdy jest szeroki I ma tło)
+  // Logika blokowania zooma: 
+  // Jeśli jest szeroki (Wide) I NIE jest przezroczysty (ma tło) -> zablokuj zoom
   const disableZoom = item.isWide && !item.isTransparent;
 
   const nextImage = (e) => {
@@ -27,7 +28,6 @@ const GridItem = ({ item }) => {
     setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
-  // Aktualnie wyświetlane zdjęcie
   const currentSrc = images.length > 0 ? images[currentImageIndex] : null;
 
   return (
@@ -37,14 +37,14 @@ const GridItem = ({ item }) => {
         ${item.isTransparent ? 'adaptive-bg' : ''}
         ${item.isWide ? 'wide-item' : ''}
         ${!item.isTransparent && currentSrc ? 'full-photo' : ''}
-        ${disableZoom ? 'no-zoom' : ''} 
+        ${disableZoom ? 'no-zoom' : ''}
       `}
     >
       {currentSrc ? (
         <>
           <img src={currentSrc} alt={item.title} />
           
-          {/* Strzałki pokażą się TYLKO jeśli w danych są min. 2 zdjęcia */}
+          {/* Strzałki tylko gdy >1 zdjęcie */}
           {hasMultipleImages && (
             <>
               <button className="slider-arrow left" onClick={prevImage}>&lt;</button>
@@ -57,7 +57,6 @@ const GridItem = ({ item }) => {
             <span className="item-category">
               {Array.isArray(item.category) ? item.category.join(', ') : item.category}
             </span>
-            {/* Licznik zdjęć (np. 1/2) */}
             {hasMultipleImages && (
               <span className="image-counter">
                 {currentImageIndex + 1} / {images.length}
@@ -75,13 +74,12 @@ const GridItem = ({ item }) => {
   );
 };
 
-// --- GŁÓWNY KOMPONENT APP ---
+// --- GŁÓWNA APLIKACJA ---
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [filter, setFilter] = useState('All');
   const [scrollRotation, setScrollRotation] = useState(0);
-  // Trzymamy potasowane elementy w stanie, żeby nie skakały
-  const [shuffledItems, setShuffledItems] = useState([]); 
+  const [shuffledItems, setShuffledItems] = useState([]);
 
   // Refs do kursora
   const mainCursor = useRef(null);
@@ -96,24 +94,37 @@ function App() {
 
   const contactLink = "https://docs.google.com/forms/d/e/1FAIpQLSe3PFAr-GSdsjJQtr71f4Gi-vOkSmNVJq7wrHTVyAZCD9ra5g/viewform?usp=dialog";
 
-  // --- EFEKT 1: INICJALIZACJA DANYCH (Shuffle raz na start) ---
+  // --- 1. DANE I LOSOWANIE (Shuffle) ---
   useEffect(() => {
-    // TU SĄ TWOJE DANE. Jeśli nie chcesz strzałek, usuń drugie zdjęcia z tablic `images`.
+    // Tutaj poprawiłem dane - usunąłem nadmiarowe zdjęcia tam, gdzie ich nie chciałeś
     const rawData = [
-        { id: 1, title: '2D Vector Graffiti', category: 'Calligraphy', img: 'img/antszkol.png', isTransparent: true },
-        { id: 2, title: '2D Logo', category: ['Branding', 'Logo'], img: 'img/kith_graffiti.png', isTransparent: true },
-        { id: 3, title: '3D logo render', category: ['Logo', '3D'], img: 'img/KITH_graphic.png', isTransparent: false, isWide: true },
-        { id: 4, title: '3D logo render', category: ['Calligraphy', '3D'], img: 'img/mechatok_wax.png', isTransparent: false },
-        { id: 5, title: '2D logo', category: 'Branding', img: 'img/kith_graffiti2.png', isTransparent: true },
-        // Te elementy mają po 2 zdjęcia, więc będą miały strzałki:
-        { id: 6, title: 'Sex Pistols calligraphic logo', category: ['Calligraphy', 'Logo', 'Branding'], images: ['img/sex_pistols.png', 'img/sex_pistols2.png'], isTransparent: true },
-        { id: 7, title: 'BassVictim 2D logo', category: 'Calligraphy', images: ['img/bass1.png', 'img/bass3.png'], isTransparent: true }
+      { id: 1, title: '2D Vector Graffiti', category: 'Calligraphy', img: 'img/antszkol.png', isTransparent: true },
+      { id: 2, title: '2D Logo', category: ['Branding', 'Logo'], img: 'img/kith_graffiti.png', isTransparent: true },
+      // Ten jest Wide + False Transparent = BRAK ZOOMA (zgodnie z życzeniem)
+      { id: 3, title: '3D logo render', category: ['Logo', '3D'], img: 'img/KITH_graphic.png', isTransparent: false, isWide: true },
+      { id: 4, title: '3D logo render', category: ['Calligraphy', '3D'], img: 'img/mechatok_wax.png', isTransparent: false },
+      { id: 5, title: '2D logo', category: 'Branding', img: 'img/kith_graffiti2.png', isTransparent: true },
+      // Tutaj zostawiłem tylko 1 zdjęcie, żeby nie było strzałek "niby 2 itemy"
+      { id: 6, title: 'Sex Pistols Logo', category: ['Calligraphy', 'Logo'], img: 'img/sex_pistols.png', isTransparent: true },
+      // Tutaj zostawiłem 2, jeśli chcesz strzałki, zostaw tablicę images. Jak nie, zmień na img: '...'
+      { id: 7, title: 'BassVictim 2D logo', category: 'Calligraphy', images: ['img/bass1.png', 'img/bass3.png'], isTransparent: true }
     ];
-    // Tasujemy raz przy załadowaniu strony
+
+    // Losujemy kolejność raz przy wejściu na stronę
     setShuffledItems([...rawData].sort(() => Math.random() - 0.5));
   }, []);
 
-  // --- EFEKT 2: LOGIKA KURSORA I SCROLLA ---
+  // --- 2. BIAŁE LOGO W CHROME (Favicon) ---
+  useEffect(() => {
+    const link = document.querySelector("link[rel~='icon']");
+    if (link) {
+      // WAŻNE: Musisz wgrać plik 'moje_logo_white.svg' do folderu public/img!
+      // Jeśli go nie masz, kod zadziała, ale ikona zniknie.
+      link.href = "img/moje_logo_white.svg";
+    }
+  }, []);
+
+  // --- 3. KURSOR I SCROLL ---
   useEffect(() => {
     const handleMouseMove = (e) => {
       mouseX.current = e.clientX;
@@ -152,22 +163,10 @@ function App() {
     };
   }, []);
 
-  // --- EFEKT 3: ZMIANA IKONY (FAVICON) NA BIAŁE LOGO ---
-  useEffect(() => {
-    const link = document.querySelector("link[rel~='icon']");
-    if (link) {
-      // Upewnij się, że plik 'moje_logo_white.svg' jest w folderze public/img!
-      link.href = "img/moje_logo_white.svg";
-    }
-  }, []);
-
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-  };
-
+  const toggleTheme = () => setIsDarkMode(!isDarkMode);
   const filters = ['All', 'Logo', 'Video', 'Calligraphy', 'Branding', '3D'];
 
-  // --- FILTROWANIE (na już potasowanej liście) ---
+  // Filtrowanie (na już potasowanej liście)
   const filteredItems = useMemo(() => {
     if (filter === 'All') return shuffledItems;
     return shuffledItems.filter(item => {
@@ -175,7 +174,6 @@ function App() {
       return categories.some(cat => cat.toLowerCase() === filter.toLowerCase());
     });
   }, [filter, shuffledItems]);
-
 
   return (
     <div className={`app-container ${isDarkMode ? 'dark-mode' : ''}`}>
@@ -193,7 +191,6 @@ function App() {
           />
           <div className="brand-name">ANTONI BISKUPSKI</div>
         </div>
-
         <nav className="main-nav">
           <a href={contactLink} target="_blank" rel="noopener noreferrer" className="nav-link">
             Work With me!
