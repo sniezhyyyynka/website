@@ -96,7 +96,11 @@ function App() {
       { id: 4, title: '3D logo render', category: ['Calligraphy', '3D'], img: 'img/mechatok_wax.png', isTransparent: false },
       { id: 5, title: '2D logo', category: 'Branding', img: 'img/kith_graffiti2.png', isTransparent: true },
       { id: 6, title: 'Sex Pistols Logo', category: ['Calligraphy', 'Logo'], img: ['img/sex_pistols2.png', 'img/sex_pistols.png'], isTransparent: true },
-      { id: 7, title: 'BassVictim 2D logo', category: 'Calligraphy', images: ['img/bass1.png', 'img/bass3.png'], isTransparent: true }
+      { id: 7, title: 'BassVictim 2D logo', category: 'Calligraphy', images: ['img/bass1.png', 'img/bass3.png'], isTransparent: true },
+      { id: 8, title: 'M3lody 2D logo', category: ['Logo', 'Branding'], img: ['img/melody.png'], isTransparent: true },
+      { id: 9, title: 'Icarus logo', category: ['Calligraphy', 'Logo'], img: ['img/icarus.png'], isTransparent: true },
+      { id: 10, title: 'Bladee Logo', category: ['Calligraphy', 'Logo'], img: ['img/bladee.png'], isTransparent: true },
+      { id: 11, title: 'Drewmp Logo', category: ['Calligraphy', 'Logo', 'Branding'], img: ['img/drewmp.png'], isTransparent: true },
     ];
 
     setShuffledItems([...rawData].sort(() => Math.random() - 0.5));
