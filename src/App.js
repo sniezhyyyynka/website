@@ -5,9 +5,13 @@ import './App.css';
 const GridItem = ({ item }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
+  // Logika decydująca, skąd brać zdjęcia
   const images = useMemo(() => {
+    // 1. Jeśli w danych jest klucz 'images' (tablica), użyj go
     if (item.images && item.images.length > 0) return item.images;
+    // 2. Jeśli jest klucz 'img' (pojedynczy string), zrób z niego tablicę
     if (item.img) return [item.img];
+    // 3. W przeciwnym razie pusta tablica
     return [];
   }, [item.images, item.img]);
 
@@ -69,7 +73,8 @@ const GridItem = ({ item }) => {
 
 // --- GŁÓWNA APLIKACJA ---
 function App() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  // ZMIANA: Domyślnie tryb ciemny (true)
+  const [isDarkMode, setIsDarkMode] = useState(true);
   const [filter, setFilter] = useState('All');
   const [scrollRotation, setScrollRotation] = useState(0);
   const [shuffledItems, setShuffledItems] = useState([]);
@@ -90,18 +95,21 @@ function App() {
   // --- 1. DANE I LOSOWANIE (Shuffle) ---
   useEffect(() => {
     const rawData = [
+      // Elementy z pojedynczym zdjęciem używają klucza 'img'
       { id: 1, title: '2D Vector Graffiti', category: 'Calligraphy', img: 'img/antszkol.png', isTransparent: true },
       { id: 2, title: '2D Logo', category: ['Branding', 'Logo'], img: 'img/kith_graffiti.png', isTransparent: true },
       { id: 3, title: '3D logo render', category: ['Logo', '3D'], img: 'img/KITH_graphic.png', isTransparent: false, isWide: true },
       { id: 4, title: '3D logo render', category: ['Calligraphy', '3D'], img: 'img/mechatok_wax.png', isTransparent: false },
       { id: 5, title: '2D logo', category: 'Branding', img: 'img/kith_graffiti2.png', isTransparent: true },
-      { id: 6, title: 'Sex Pistols Logo', category: ['Calligraphy', 'Logo'], img: ['img/sex_pistols2.png', 'img/sex_pistols.png'], isTransparent: true },
+      
+      // ZMIANA: Elementy z tablicą zdjęć ['...', '...'] używają klucza 'images'
+      { id: 6, title: 'Sex Pistols Logo', category: ['Calligraphy', 'Logo'], images: ['img/sex_pistols2.png', 'img/sex_pistols.png'], isTransparent: true },
       { id: 7, title: 'BassVictim 2D logo', category: 'Calligraphy', images: ['img/bass1.png', 'img/bass3.png'], isTransparent: true },
-      { id: 8, title: 'M3lody 2D logo', category: ['Logo', 'Branding'], img: ['img/melody.png'], isTransparent: true },
-      { id: 9, title: 'Icarus logo', category: ['Calligraphy', 'Logo'], img: ['img/icarus.png'], isTransparent: true },
-      { id: 10, title: 'Bladee Logo', category: ['Calligraphy', 'Logo'], img: ['img/bladee.png'], isTransparent: true },
-      { id: 11, title: 'Drewmp Logo', category: ['Calligraphy', 'Logo', 'Branding'], img: ['img/drewmp.png'], isTransparent: true },
-      { id: 12, title: 'Satori ad graphic', category: ['Calligraphy', 'Logo', 'Branding'], img: ['img/satori.png'], isTransparent: false, isWide: false}
+      { id: 8, title: 'M3lody 2D logo', category: ['Logo', 'Branding'], images: ['img/melody.png'], isTransparent: true },
+      { id: 9, title: 'Icarus logo', category: ['Calligraphy', 'Logo'], images: ['img/icarus.png'], isTransparent: true },
+      { id: 10, title: 'Bladee Logo', category: ['Calligraphy', 'Logo'], images: ['img/bladee.png'], isTransparent: true },
+      { id: 11, title: 'Drewmp Logo', category: ['Calligraphy', 'Logo', 'Branding'], images: ['img/drewmp.png'], isTransparent: true },
+      { id: 12, title: 'Satori ad graphic', category: ['Calligraphy', 'Logo', 'Branding'], images: ['img/satori.png'], isTransparent: false, isWide: false}
     ];
 
     setShuffledItems([...rawData].sort(() => Math.random() - 0.5));
@@ -111,7 +119,6 @@ function App() {
   useEffect(() => {
     const link = document.querySelector("link[rel~='icon']");
     if (link) {
-      // Pamiętaj o wgraniu pliku moje_logo_white.svg do public/img !
       link.href = "img/moje_logo_white.svg";
     }
   }, []);
@@ -158,7 +165,6 @@ function App() {
   const toggleTheme = () => setIsDarkMode(!isDarkMode);
   const filters = ['All', 'Logo', 'Video', 'Calligraphy', 'Branding', '3D'];
 
-  // Filtrowanie (na już potasowanej liście)
   const filteredItems = useMemo(() => {
     if (filter === 'All') return shuffledItems;
     return shuffledItems.filter(item => {
