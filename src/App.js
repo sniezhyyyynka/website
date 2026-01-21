@@ -98,7 +98,7 @@ function App() {
       // Elementy z pojedynczym zdjęciem używają klucza 'img'
       { id: 1, title: '2D Vector Graffiti', category: 'Calligraphy', img: 'img/antszkol.png', isTransparent: true },
       { id: 2, title: '2D Logo', category: ['Branding', 'Logo'], img: 'img/kith_graffiti.png', isTransparent: true },
-      { id: 3, title: '3D logo render', category: ['Logo', '3D'], img: 'img/KITH_graphic.png', isTransparent: false, isWide: true },
+      { id: 3, title: '3D logo render', category: '3D', img: 'img/KITH_graphic.png', isTransparent: false, isWide: true },
       { id: 4, title: '3D logo render', category: ['Calligraphy', '3D'], img: 'img/mechatok_wax.png', isTransparent: false },
       { id: 5, title: '2D logo', category: 'Branding', img: 'img/kith_graffiti2.png', isTransparent: true },
       { id: 13, title: 'OND 2D logo', category: ['Branding', 'Logo'], img: 'img/ond.png', isTransparent: true },
@@ -110,7 +110,7 @@ function App() {
       { id: 9, title: 'Icarus logo', category: ['Calligraphy', 'Logo'], images: ['img/icarus.png'], isTransparent: true },
       { id: 10, title: 'Bladee Logo', category: ['Calligraphy', 'Logo'], images: ['img/bladee.png'], isTransparent: true },
       { id: 11, title: 'Drewmp Logo', category: ['Calligraphy', 'Logo', 'Branding'], images: ['img/drewmp.png'], isTransparent: true },
-      { id: 12, title: 'Satori ad graphic', category: ['Calligraphy', 'Logo', 'Branding'], images: ['img/satori.png'], isTransparent: false, isWide: true}
+      { id: 12, title: 'Satori ad graphic', category: ['Calligraphy', '3D'], images: ['img/satori.png'], isTransparent: false, isWide: true}
     ];
 
     setShuffledItems([...rawData].sort(() => Math.random() - 0.5));
