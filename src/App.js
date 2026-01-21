@@ -110,7 +110,8 @@ function App() {
       { id: 9, title: 'Icarus logo', category: ['Calligraphy', 'Logo'], images: ['img/icarus.png'], isTransparent: true },
       { id: 10, title: 'Bladee Logo', category: ['Calligraphy', 'Logo'], images: ['img/bladee.png'], isTransparent: true },
       { id: 11, title: 'Drewmp Logo', category: ['Calligraphy', 'Logo', 'Branding'], images: ['img/drewmp.png'], isTransparent: true },
-      { id: 12, title: 'Satori ad graphic', category: ['Calligraphy', '3D'], images: ['img/satori.png'], isTransparent: false, isWide: true}
+      { id: 12, title: 'Satori ad graphic', category: ['Calligraphy', '3D'], images: ['img/satori.png'], isTransparent: false, isWide: true},
+      { id: 14, title: 'Tecco 2D Logo', category: ['Logo', 'Branding'], images: ['img/tecco.png', 'img/tecco2.png'], isTransparent: true, isWide: false}
     ];
 
     setShuffledItems([...rawData].sort(() => Math.random() - 0.5));
